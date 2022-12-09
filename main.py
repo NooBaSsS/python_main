@@ -35,7 +35,7 @@ def make_hero(
         name = choice(first_names) + " " + choice(last_names)
 
     if not hp_now:
-        hp_now = randint(1, 100)
+        hp_now = randint(50, 100)
     
     if not hp_max:
         hp_max = hp_now
@@ -103,9 +103,10 @@ def consume_item(hero: list, idx: str) -> None:
     """
     Удаляет предмет из инвентаря по индексу и дает герою эффект этого предмета
     """
+    os.system("cls")
     if idx <= len(hero[10]) - 1 and idx > -1:
         print(f"{hero[0]} употребил {hero[10][idx]}")
-        if hero[10][idx] == "зелье здоровья ":
+        if hero[10][idx] == "зелье здоровья":
             hero[1] += 25
             if hero[1] > hero[2]:
                 hero[1] = hero[2]
@@ -119,6 +120,7 @@ def consume_item(hero: list, idx: str) -> None:
     else:
         print("Нет такого индекса!")
     print("")
+    input("\nНажмите ENTER чтобы сделать следующий ход")
 
 
 def play_dice(hero: list, bet: int) -> None:
@@ -189,11 +191,23 @@ def start_fight(hero: list) -> None:
     [10] inventory - список предметов
     """
     enemy = make_hero(hp_now=30, xp_now=12, money=10, inventory=["меч"])
+    options = [
+            "атаковать противника",
+            "использовать предмет из инвентаря"
+    ]
     while hero[1] > 0 and enemy[1] > 0:
         os.system("cls")
-        combat_turn(hero, enemy)
+        option = choose_options(hero, "", options)
+
+        if option == 0:
+            combat_turn(hero, enemy)
+        elif option == 1:
+            idx = choose_options(hero, "", hero[10])
+            if idx is not None:
+                consume_item(hero, idx)
         combat_turn(enemy, hero)
         print("")
+        os.system("cls")
         show_hero(hero)
         show_hero(enemy)
         input("\nНажмите ENTER чтобы сделать следующий ход")
@@ -253,7 +267,7 @@ def visit_hub(hero: list) -> None:
     text = "w"
     options = [
         "зайти в лавку алхимика",
-        "использовать первый предмет в инвентаре",
+        "использовать предмет из инвентаря",
         "пойти на арену",
         "зайти в казино",
         "выйти в главное меню"
@@ -263,11 +277,13 @@ def visit_hub(hero: list) -> None:
     if option == 0:
         return visit_shop(hero)
     elif option == 1:
-        consume_item(hero, 0)
+        idx = choose_options(hero, "", hero[10])
+        if idx is not None:
+            consume_item(hero, idx)
     elif option == 2:
         return visit_arena(hero)
     elif option == 3:
-        visit_casino(hero)
+        return visit_casino(hero)
     else:
         print("такого варианта нет")
     input("\n э")
@@ -299,7 +315,6 @@ def visit_shop(hero: list) -> None:
     else:
         print("такого варианта нет")
         return visit_shop(hero)
-    input("\n э")
 
 
 
@@ -320,7 +335,7 @@ def visit_casino(hero: list) -> None:
     else:
         print("такого варианта нет")
         return visit_casino(hero)
-        input("\nНажмите ENTER чтобы сделать следующий ход")
+        input("\nНажмите ENTER чтобы продолжить")
     input("\n э")
 
 
@@ -338,4 +353,8 @@ def visit_arena(hero: list) -> None:
     elif option == 1:
         return visit_hub(hero)
     else:
-        input("+++++++++++++++++++++")
+        print("такого варианта нет")
+        input("\nНажмите ENTER чтобы продолжить")
+        return visit_arena(hero)
+        
+        
