@@ -356,5 +356,7 @@ def visit_arena(hero: list) -> None:
         print("такого варианта нет")
         input("\nНажмите ENTER чтобы продолжить")
         return visit_arena(hero)
-        
-        
+
+
+def main_menu():
+    pass
