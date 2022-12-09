@@ -101,7 +101,7 @@ def buy_item(hero: list, price: int, item: str) -> None:
 
 def consume_item(hero: list, idx: str) -> None:
     """
-    Удаляет предмет из инвентаря по индексу и дает герою эффект этого предмета
+    TODO: кидает в меню вместо хаба
     """
     os.system("cls")
     if idx <= len(hero[10]) - 1 and idx > -1:
@@ -119,8 +119,9 @@ def consume_item(hero: list, idx: str) -> None:
         hero[10].pop(idx)
     else:
         print("Нет такого индекса!")
+        return visit_hub(hero)
     print("")
-    input("\nНажмите ENTER чтобы сделать следующий ход")
+    input("\nНажмите ENTER чтобы продолжить")
 
 
 def play_dice(hero: list, bet: int) -> None:
@@ -358,5 +359,21 @@ def visit_arena(hero: list) -> None:
         return visit_arena(hero)
 
 
-def main_menu():
-    pass
+def main_menu(hero):
+    """
+    TODO: сделать пересоздание персонажа или убрать показ статистики в меню
+    """
+    text = "Вы в главном меню"
+    options = [
+        "начать новую игру",
+        "создать нового персонажа",
+    ]
+    option = choose_options(hero, text, options)
+    os.system("cls")
+    if option == 0:
+        return visit_hub(hero)
+    elif option == 1:
+        hero = make_hero(name="1", inventory=["зелье здоровья", "меч"])
+    else:
+        print("такого варианта нет")
+        return main_menu(hero)
