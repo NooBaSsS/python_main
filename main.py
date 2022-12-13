@@ -99,29 +99,32 @@ def buy_item(hero: list, price: int, item: str) -> None:
         print(f"У {hero[0]} нет столько монет! Не хватило {price - hero[9]}")
     input("нажмите ENTER чтобы продолжить")
 
-def consume_item(hero: list, idx: str) -> None:
+def consume_item(hero: list) -> None:
     """
     TODO: кидает в меню вместо хаба
     """
     os.system("cls")
-    if idx <= len(hero[10]) - 1 and idx > -1:
-        print(f"{hero[0]} употребил {hero[10][idx]}")
-        if hero[10][idx] == "зелье здоровья":
-            hero[1] += 25
-            if hero[1] > hero[2]:
-                hero[1] = hero[2]
-                print(f"{hero[0]} вылечился")
-        elif hero[10][idx] == "зелье силы":
-            hero[6] += 2
-            print(f"{hero[0]} стал сильнее")
-        else:
-            print("Никакого эффекта")
-        hero[10].pop(idx)
+    show_options(hero, hero[10])
+    idx = choose_options(hero, hero[10])
+    os.system("cls")
+    if idx is not None:
+        if idx <= len(hero[10]) - 1 and idx > -1:
+            print(f"{hero[0]} употребил {hero[10][idx]}", end=", ")
+            if hero[10][idx] == "зелье здоровья":
+                hero[1] += 25
+                if hero[1] > hero[2]:
+                    hero[1] = hero[2]
+                    print(f"{hero[0]} вылечился")
+            elif hero[10][idx] == "зелье силы":
+                hero[6] += 2
+                print(f"{hero[0]} стал сильнее")
+            else:
+                print("Никакого эффекта")
+            hero[10].pop(idx)
     else:
         print("Нет такого индекса!")
-        return visit_hub(hero)
     print("")
-    input("\nНажмите ENTER чтобы продолжить")
+
 
 
 def play_dice(hero: list, bet: int) -> None:
@@ -169,50 +172,32 @@ def combat_turn(attacker, defender):
 
 
 def start_fight(hero: list) -> None:
-    """
-    Сделать врага
-    Зависит ли враг от уровня героя
-    Обмен ударами, пока у всех есть жизни
-    Формула аткаи и защиты?
-    После боя забрать опыт, деньги и предметы
-    Проверить левелап
-    Можно ли выпить зелье в бою?
-
-    Персонаж - это список
-    [0] name - имя
-    [1] hp_now - здоровье текущее
-    [2] hp_max - здоровье максимальное
-    [3] lvl - уровень
-    [4] xp_now - опыт текущий
-    [5] xp_next - опыт до следующего уровня
-    [6] attack - сила атаки, применяется в бою
-    [7] defence - защита, применяется в бою
-    [8] luck - удача
-    [9] money - деньги
-    [10] inventory - список предметов
-    """
-    enemy = make_hero(hp_now=30, xp_now=12, money=10, inventory=["меч"])
+    enemy = make_hero(hp_now=3, xp_now=12, money=10, inventory=["меч"])
     options = [
             "атаковать противника",
             "использовать предмет из инвентаря"
     ]
-    while hero[1] > 0 and enemy[1] > 0:
-        os.system("cls")
-        option = choose_options(hero, "", options)
+    show_hero(hero)
+    show_hero(enemy)
 
+    while hero[1] > 0 and enemy[1] > 0:
+        show_options(hero, options)
+        option = choose_options(hero, options)
+        os.system("cls")
         if option == 0:
             combat_turn(hero, enemy)
+            combat_turn(enemy, hero)
+            show_hero(hero)
+            show_hero(enemy)
         elif option == 1:
-            idx = choose_options(hero, "", hero[10])
-            if idx is not None:
-                consume_item(hero, idx)
-        combat_turn(enemy, hero)
-        print("")
-        os.system("cls")
-        show_hero(hero)
-        show_hero(enemy)
-        input("\nНажмите ENTER чтобы сделать следующий ход")
+            consume_item(hero)
+            combat_turn(enemy, hero)
+            show_hero(hero)
+            show_hero(enemy)
     combat_result(hero, enemy)
+    input("\nНажмите ENTER чтобы продолжить")
+    os.system("cls")
+
 
 def combat_result(hero, enemy) -> None:
     os.system("cls")
@@ -227,19 +212,17 @@ def combat_result(hero, enemy) -> None:
             print(item, end=",")
         hero[10] += enemy[10]
         levelup(hero)
-        """
-        TODO: 
-        Победитель получает опыт соперника,
-        деньги соперника и предметы соперника.
-        Проверить левелап.
-        """
     elif hero[1] <= 0 and enemy[1] > 0:
         print(f"{enemy[0]} победил!")
     else:
         print(f"{hero[0]} и {enemy[0]} пали в бою:(")
 
 
-def choose_options(hero: list, text: str, options: list) -> int:
+def show_options(hero: list, options: list) -> None:
+    for num, option in enumerate(options):
+        print(f"{num}. {option}")
+
+def choose_options(hero: list, options: list) -> int:
     """
     описание ситуации, где происходит выбор
     принимает список возможных вариантов
@@ -247,11 +230,8 @@ def choose_options(hero: list, text: str, options: list) -> int:
     проверяет, есть ли такой вариант
     если есть, возвращает
     """
-    os.system("cls")
-    show_hero(hero)
-    print(text)
-    for num, option in enumerate(options):
-        print(f"{num}. {option}")
+    
+    
     option = input("\nвведите номер варианта: ")
     try:
         option = int(option)
@@ -265,6 +245,7 @@ def choose_options(hero: list, text: str, options: list) -> int:
 
 
 def visit_hub(hero: list) -> None:
+    os.system("cls")
     text = "w"
     options = [
         "зайти в лавку алхимика",
@@ -273,8 +254,14 @@ def visit_hub(hero: list) -> None:
         "зайти в казино",
         "выйти в главное меню"
     ]
-    option = choose_options(hero, text, options)
     os.system("cls")
+    show_hero(hero)
+    print(text)
+    show_options(hero, options)
+    option = choose_options(hero, options)
+    os.system("cls")
+    show_hero(hero)
+    
     if option == 0:
         return visit_shop(hero)
     elif option == 1:
@@ -303,7 +290,7 @@ def visit_shop(hero: list) -> None:
         "купить зелье силы за 15 монет",
         "выйти в Хаб",
     ]
-    option = choose_options(hero, text, options)
+    option = choose_options(hero, options)
     os.system("cls")
     if option == 0:
         buy_item(hero, 10, "зелье здоровья")
@@ -325,7 +312,7 @@ def visit_casino(hero: list) -> None:
         "выбрать ставку и сыграть в кости",
         "выйти в Хаб",
     ]
-    option = choose_options(hero, text, options)
+    option = choose_options(hero, options)
     os.system("cls")
     if option == 0:
         bet = input("сколько поставить? ")
@@ -346,7 +333,8 @@ def visit_arena(hero: list) -> None:
         "начать бой",
         "выйти в Хаб",
     ]
-    option = choose_options(hero, text, options)
+    show_options(hero, options)
+    option = choose_options(hero, options)
     os.system("cls")
     if option == 0:
         start_fight(hero)
@@ -368,7 +356,7 @@ def main_menu(hero):
         "начать новую игру",
         "создать нового персонажа",
     ]
-    option = choose_options(hero, text, options)
+    option = choose_options(hero, options)
     os.system("cls")
     if option == 0:
         return visit_hub(hero)
