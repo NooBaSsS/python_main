@@ -272,6 +272,8 @@ def visit_hub(hero: list) -> None:
         return visit_arena(hero)
     elif option == 3:
         return visit_casino(hero)
+    elif option == 4:
+        return main_menu(hero)
     else:
         print("такого варианта нет")
     input("\n э")
@@ -348,20 +350,16 @@ def visit_arena(hero: list) -> None:
 
 
 def main_menu(hero):
-    """
-    TODO: сделать пересоздание персонажа или убрать показ статистики в меню
-    """
+    os.system("cls")
     text = "Вы в главном меню"
     options = [
         "начать новую игру",
-        "создать нового персонажа",
     ]
+    show_options(hero, options)
     option = choose_options(hero, options)
     os.system("cls")
     if option == 0:
         return visit_hub(hero)
-    elif option == 1:
-        hero = make_hero(name="1", inventory=["зелье здоровья", "меч"])
     else:
         print("такого варианта нет")
         return main_menu(hero)
