@@ -172,7 +172,7 @@ def combat_turn(attacker, defender):
 
 
 def start_fight(hero: list) -> None:
-    enemy = make_hero(hp_now=3, xp_now=12, money=10, inventory=["меч"])
+    enemy = make_hero(hp_now=30, xp_now=12, money=10, inventory=["меч"])
     options = [
             "атаковать противника",
             "использовать предмет из инвентаря"
@@ -214,8 +214,13 @@ def combat_result(hero, enemy) -> None:
         levelup(hero)
     elif hero[1] <= 0 and enemy[1] > 0:
         print(f"{enemy[0]} победил!")
+        return main_menu(hero)
     else:
         print(f"{hero[0]} и {enemy[0]} пали в бою:(")
+
+
+def fishing(hero):
+    pass
 
 
 def show_options(hero: list, options: list) -> None:
@@ -252,6 +257,7 @@ def visit_hub(hero: list) -> None:
         "использовать предмет из инвентаря",
         "пойти на арену",
         "зайти в казино",
+        "магазин",
         "выйти в главное меню"
     ]
     os.system("cls")
@@ -265,7 +271,7 @@ def visit_hub(hero: list) -> None:
     if option == 0:
         return visit_shop(hero)
     elif option == 1:
-        idx = choose_options(hero, "", hero[10])
+        idx = choose_options(hero, hero[10])
         if idx is not None:
             consume_item(hero, idx)
     elif option == 2:
@@ -273,6 +279,8 @@ def visit_hub(hero: list) -> None:
     elif option == 3:
         return visit_casino(hero)
     elif option == 4:
+        return visit_fishing_s(hero)
+    elif option == 5:
         return main_menu(hero)
     else:
         print("такого варианта нет")
@@ -292,6 +300,10 @@ def visit_shop(hero: list) -> None:
         "купить зелье силы за 15 монет",
         "выйти в Хаб",
     ]
+    os.system("cls")
+    show_hero(hero)
+    print(text)
+    show_options(hero, options)
     option = choose_options(hero, options)
     os.system("cls")
     if option == 0:
@@ -314,6 +326,10 @@ def visit_casino(hero: list) -> None:
         "выбрать ставку и сыграть в кости",
         "выйти в Хаб",
     ]
+    os.system("cls")
+    show_hero(hero)
+    print(text)
+    show_options(hero, options)
     option = choose_options(hero, options)
     os.system("cls")
     if option == 0:
@@ -347,6 +363,24 @@ def visit_arena(hero: list) -> None:
         print("такого варианта нет")
         input("\nНажмите ENTER чтобы продолжить")
         return visit_arena(hero)
+
+
+def visit_fishing_s(hero: list) -> None:
+    text = f"{hero[0]} зашел "
+    options = [
+    "1"
+    ]
+    show_options(hero, options)
+    option = choose_options(hero, options)
+    os.system("cls")
+    if option == 0:
+        pass
+    elif option == 1:
+        return visit_hub(hero)
+    else:
+        print("такого варианта нет")
+        input("\nНажмите ENTER чтобы продолжить")
+        return visit_fishing_s(hero)
 
 
 def main_menu(hero):
