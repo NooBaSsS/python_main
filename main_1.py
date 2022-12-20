@@ -100,7 +100,7 @@ def show_hero(hero: dict) -> None:
     print("")
 
 
-def levelup(hero: list) -> None:
+def levelup(hero: dict) -> None:
     """
     TODO: что растет с уровнем?
     """
@@ -110,7 +110,7 @@ def levelup(hero: list) -> None:
         print(f"{hero['имя']} получил {hero['уровень']} уровень\n")
 
 
-def buy_item(hero: list, price: int, item: str) -> None:
+def buy_item(hero: dict, price: int, item: str) -> None:
     os.system("cls")
     if hero["деньги"] >= price:
         hero["деньги"] -= price
