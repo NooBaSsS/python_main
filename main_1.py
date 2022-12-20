@@ -11,6 +11,8 @@ def make_hero(
         hp_max=None,
         lvl=1,
         xp_now=0,
+        weapon=None,
+        shield=None,
         attack=1,
         defence=1,
         luck=1,
@@ -23,7 +25,7 @@ def make_hero(
 
     if not hp_now:
         hp_now = randint(50, 100)
-    
+
     if not hp_max:
         hp_max = hp_now
 
@@ -34,7 +36,15 @@ def make_hero(
 
     if not inventory:
         inventory = []
-    
+
+    if not weapon:
+        weapon = {
+            "тип": "оружие",
+            "название": "обычный меч",
+            "модификатор": 3,
+            "цена": 100,
+        }
+
     return {
         "имя": name,
         "жизни": hp_now,
@@ -42,6 +52,7 @@ def make_hero(
         "уровень": lvl,
         "опыт": xp_now,
         "опыт до уровня": xp_next,
+        "оружие": weapon,
         "атака": attack,
         "защита": defence,
         "удача": luck,
@@ -62,9 +73,31 @@ def make_hero(
     [9] money - деньги
     [10] inventory - список предметов
 """
+
+def show_item(item: dict) -> None:
+    if item:
+        if item['тип'] == 'оружие':
+            print(f"{item['название']} +{item['модификатор']}")
+    else:
+        print("пусто")
+
 def show_hero(hero: dict) -> None:
+    '''
     for k, v in hero.items():
         print(f"{k}: {v}")
+    '''
+    print("имя:", hero['имя'])
+    print("здоровье:", hero['жизни'], "/", hero['жизни_макс'])
+    print("уровень:", hero['уровень'])
+    print("опыт:", hero['опыт'], "/", hero['опыт до уровня'])
+    print("оружие:", end=" ")
+    show_item(hero['оружие'])
+    print("атака:", hero['атака'])
+    print("защита:", hero['защита'])
+    print("удача:", hero['удача'])
+    print("деньги:", hero['деньги'])
+    print("инвентарь:", hero['инвентарь'])  # TODO: показать предметы и их количество
+    print("")
 
 
 def levelup(hero: list) -> None:
@@ -146,7 +179,7 @@ def play_dice(hero: dict, bet: int) -> None:
                 if hero_score > casino_score:
                     hero['деньги'] += bet
                     print(f"{hero['имя']} выиграл {bet} монет")
-                    input("\nНажмите ENTER чтобы продолжить")я
+                    input("\nНажмите ENTER чтобы продолжить")
                 elif hero_score < casino_score:
                     hero['деньги'] -= bet
                     print(f"{hero['имя']} проиграл {bet} монет")
@@ -192,7 +225,7 @@ def start_fight(hero: dict) -> None:
     show_hero(hero)
     show_hero(enemy)
 
-    while hero['жизни'] > 0 and enemy[1] > 0:
+    while hero['жизни'] > 0 and enemy['жизни'] > 0:
         show_options(hero, options)
         option = choose_options(hero, options)
         os.system("cls")
@@ -213,22 +246,22 @@ def start_fight(hero: dict) -> None:
 
 def combat_result(hero, enemy) -> None:
     os.system("cls")
-    if hero['жизни'] > 0 and enemy[1] <= 0:
+    if hero['жизни'] > 0 and enemy['жизни'] <= 0:
         print(f"{hero['имя']} победил!")
-        print(enemy[4], "опыта")
-        hero[4] += enemy[4]
-        print(enemy[9], "монет")
-        hero['деньги'] += enemy[9]
+        print(hero['опыт'], "опыта")
+        hero['опыт'] += hero['опыт']
+        print(enemy['деньги'], "монет")
+        hero['деньги'] += enemy['деньги']
         print("забрал")
-        for item in enemy[10]:
+        for item in enemy['инвентарь']:
             print(item, end=",")
-        hero['инвентарь'] += enemy[10]
+        hero['инвентарь'] += enemy['инвентарь']
         levelup(hero)
-    elif hero['жизни'] <= 0 and enemy[1] > 0:
-        print(f"{enemy[0]} победил!")
+    elif hero['жизни'] <= 0 and enemy['жизни'] > 0:
+        print(f"{enemy['имя']} победил!")
         return main_menu(hero)
     else:
-        print(f"{hero['имя']} и {enemy[0]} пали в бою:(")
+        print(f"{hero['имя']} и {enemy['имя']} пали в бою:(")
 
 
 def show_options(hero: dict, options: list) -> None:
@@ -257,7 +290,6 @@ def visit_hub(hero: dict) -> None:
         "использовать предмет из инвентаря",
         "пойти на арену",
         "зайти в казино",
-        "магазин",
         "выйти в главное меню"
     ]
     os.system("cls")
@@ -269,11 +301,24 @@ def visit_hub(hero: dict) -> None:
     show_hero(hero)
     if option == 0:
         return visit_shop(hero)
+    elif option == 1:
+        idx = choose_options(hero, hero['инвентарь'])
+        if idx is not None:
+            consume_item(hero, idx)
+    elif option == 2:
+        return visit_arena(hero)
+    elif option == 3:
+        return visit_casino(hero)
+    elif option == 4:
+        return main_menu(hero)
+    else:
+        print("такого варианта нет")
+    input("\n э")
 
 
 def visit_shop(hero: dict) -> None:
     """
-    текст магазина 
+    текст магазина
     опции с разными товарами и ценами
     покупка товаров + добавить их эффекты в функцию consume_item
 
@@ -303,6 +348,63 @@ def visit_shop(hero: dict) -> None:
         return visit_shop(hero)
 
 
-player = make_hero()
-while True:
-    visit_hub(player)
+def visit_casino(hero: list) -> None:
+    text = f"{hero['имя']} зашел в казино"
+    options = [
+        "выбрать ставку и сыграть в кости",
+        "выйти в Хаб",
+    ]
+    os.system("cls")
+    show_hero(hero)
+    print(text)
+    show_options(hero, options)
+    option = choose_options(hero, options)
+    os.system("cls")
+    if option == 0:
+        bet = input("сколько поставить? ")
+        play_dice(hero, bet)
+        return visit_casino(hero)
+    elif option == 1:
+        return visit_hub(hero)
+    else:
+        print("такого варианта нет")
+        return visit_casino(hero)
+        input("\nНажмите ENTER чтобы продолжить")
+    input("\n э")
+
+
+def visit_arena(hero: list) -> None:
+    text = f"{hero['имя']} зашел на арену"
+    options = [
+        "начать бой",
+        "выйти в Хаб",
+    ]
+    show_options(hero, options)
+    option = choose_options(hero, options)
+    os.system("cls")
+    if option == 0:
+        start_fight(hero)
+        return visit_arena(hero)
+    elif option == 1:
+        return visit_hub(hero)
+    else:
+        print("такого варианта нет")
+        input("\nНажмите ENTER чтобы продолжить")
+        return visit_arena(hero)
+
+
+def main_menu(hero):
+    os.system("cls")
+    text = "Вы в главном меню"
+    options = [
+        "начать новую игру",
+    ]
+    show_options(hero, options)
+    option = choose_options(hero, options)
+    os.system("cls")
+    if option == 0:
+        return visit_hub(hero)
+    else:
+        print("такого варианта нет")
+        return main_menu(hero)
+
