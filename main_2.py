@@ -13,7 +13,7 @@ class Hero:
         self.defence = 1
         self.luck = 1
         self.money = 0
-        self.inventory = ['']
+        self.inventory = []
 
 
 class Player(Hero):
@@ -28,15 +28,21 @@ class Ene(Hero):
         self.name = 'aaa'
 
 
-class Weapon:
-    def __init__(self):
-        self.dmg = 2
-
-
 class Item:
-    def __init__(self):
+    def __init__(self, price):
         self.name = None
         self.effects = None
+        self.price = price
+
+
+class Weapon(Item):
+    def __init__(self, name='меч'):
+        super().__init__(self)
+        self.dmg = 2
+        self.name = name
+
+    def __str__(self):
+        return 'aaaaaaaaa'
 
 
 class Heal_item(Item):
@@ -52,7 +58,12 @@ def combat_turn(attacker, defender):
         print(f"{attacker.name} ударил {defender.name} на {damage} жизней!")
 
 
-def fight(attacker, defender):
+def show_inventory(self):
+    for i in range(len(self.inventory)):
+        print(self.inventory[i])
+
+
+'''def fight(attacker, defender):
     while attacker.hp_now > 0 and defender.hp_now > 0:
         combat_turn(attacker, defender)
         print(attacker.hp_now, defender.hp_now)
@@ -64,10 +75,22 @@ def fight(attacker, defender):
     elif attacker.hp_now <= 0 and defender.hp_now > 0:
         print(f'{defender.name} победил')
         defender.inventory += attacker.inventory
+'''
+
+
+def fight(attacker, defender):
+    while attacker.hp_now > 0 and defender.hp_now > 0:
+        show_inventory(attacker)
+        a = int(input())
+        if a == 1:
+            pass
 
 
 hero_1 = Player()
 enem = Ene()
+sword = Weapon(name='меч')
+sword.name = 'Меч'
+hero_1.inventory.append(sword)
 
 fight(hero_1, enem)
 
